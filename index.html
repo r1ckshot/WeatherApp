@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikacja Pogodowa</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        select, button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .weather-card {
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .weather-main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .temperature {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .weather-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .weather-details p {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .update-info {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        #autoUpdateBtn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        #autoUpdateBtn.active {
+            background-color: #3498db;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Aplikacja Pogodowa</h1>
+        
+        <form id="weatherForm">
+            <div class="form-group">
+                <label for="country">Wybierz kraj:</label>
+                <select id="country" name="country" required>
+                    <option value="">-- Wybierz kraj --</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="city">Wybierz miasto:</label>
+                <select id="city" name="city" required disabled>
+                    <option value="">-- Najpierw wybierz kraj --</option>
+                </select>
+            </div>
+            
+            <button type="submit">Sprawdź pogodę</button>
+        </form>
+        
+        <div id="weatherResult" class="weather-card hidden">
+            <h2 id="locationName"></h2>
+            <div class="weather-main">
+                <img id="weatherIcon" src="" alt="Ikona pogody">
+                <div class="temperature">
+                    <span id="temperature"></span>°C
+                </div>
+            </div>
+            <div class="weather-details">
+                <p>Odczuwalna: <span id="feelsLike"></span>°C</p>
+                <p>Opis: <span id="description"></span></p>
+                <p>Wilgotność: <span id="humidity"></span>%</p>
+                <p>Wiatr: <span id="windSpeed"></span> m/s</p>
+            </div>
+            <div class="update-info">
+                <p>Ostatnie odświeżenie: <span id="lastUpdate">-</span></p>
+                <button type="button" id="autoUpdateBtn" onclick="toggleAutoUpdate()">Włącz auto-odświeżanie</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dane miast dla krajów
+        const citiesByCountry = JSON.parse('{{ countries|tojson|safe }}');
+        
+        // Wypełnienie listy krajów 
+        const countrySelect = document.getElementById('country');
+        for (const country in citiesByCountry) {
+            const option = document.createElement('option');
+            option.value = country;
+            option.textContent = country;
+            countrySelect.appendChild(option);
+        }
+        
+        // Zmienna do przechowywania interwału auto-odświeżania
+        let autoUpdateInterval = null;
+        
+        // Aktualizacja listy miast po wyborze kraju
+        document.getElementById('country').addEventListener('change', function() {
+            const countrySelect = this;
+            const citySelect = document.getElementById('city');
+            
+            // Resetujemy listę miast
+            citySelect.innerHTML = '';
+            
+            if (countrySelect.value) {
+                // Dodajemy miasta dla wybranego kraju
+                const cities = citiesByCountry[countrySelect.value];
+                
+                cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+                
+                citySelect.disabled = false;
+            } else {
+                // Kraj nie został wybrany
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = '-- Najpierw wybierz kraj --';
+                citySelect.appendChild(option);
+                
+                citySelect.disabled = true;
+            }
+        });
+        
+        // Funkcja do fetchowania danych pogodowych
+        function fetchWeatherData(country, city) {
+            fetch('/weather', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'country': country,
+                    'city': city
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                // Aktualizujemy UI z danymi pogodowymi
+                document.getElementById('locationName').textContent = `${data.city}, ${data.country}`;
+                document.getElementById('temperature').textContent = data.temperature;
+                document.getElementById('feelsLike').textContent = data.feels_like;
+                document.getElementById('description').textContent = data.description;
+                document.getElementById('humidity').textContent = data.humidity;
+                document.getElementById('windSpeed').textContent = data.wind_speed;
+                document.getElementById('weatherIcon').src = `http://openweathermap.org/img/wn/${data.icon}@2x.png`;
+                
+                // Pokazujemy wynik
+                document.getElementById('weatherResult').classList.remove('hidden');
+                
+                // Dodajemy informację o ostatnim odświeżeniu
+                const updateTimeElem = document.getElementById('lastUpdate');
+                if (updateTimeElem) {
+                    const now = new Date();
+                    updateTimeElem.textContent = now.toLocaleTimeString();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Wystąpił błąd podczas pobierania danych pogodowych');
+            });
+        }
+        
+        // Funkcja do auto-odświeżania pogody
+        function updateWeather() {
+            const country = document.getElementById('country').value;
+            const city = document.getElementById('city').value;
+            
+            if (country && city) {
+                fetchWeatherData(country, city);
+            }
+        }
+        
+        // Funkcja do włączania/wyłączania auto-odświeżania
+        function toggleAutoUpdate() {
+            const autoUpdateBtn = document.getElementById('autoUpdateBtn');
+            
+            if (autoUpdateInterval) {
+                clearInterval(autoUpdateInterval);
+                autoUpdateInterval = null;
+                autoUpdateBtn.textContent = 'Włącz auto-odświeżanie';
+                autoUpdateBtn.classList.remove('active');
+            } else {
+                updateWeather(); // Od razu odśwież
+                autoUpdateInterval = setInterval(updateWeather, 30000); // Co 30 sekund
+                autoUpdateBtn.textContent = 'Wyłącz auto-odświeżanie';
+                autoUpdateBtn.classList.add('active');
+            }
+        }
+        
+        // Obsługa formularza
+        document.getElementById('weatherForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            updateWeather();
+        });
+    </script>
+</body>
+</html>
