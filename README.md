@@ -40,27 +40,32 @@ Obraz Docker został zoptymalizowany pod względem rozmiaru i wydajności:
 ```bash
 docker build -t weather-app:go .
 ```
+![image alt](https://github.com/r1ckshot/WeatherApp/blob/8785ce164defdb9c915c5c0d754aadc29eb4e064/Screens/Budowanie%20obrazu.png)
 
 ### Uruchamianie kontenera
 ```bash
 docker run -d -p 5000:5000 -e WEATHER_API_KEY=your_api_key_here --name weather-container weather-app:go
 ```
+![image alt](https://github.com/r1ckshot/WeatherApp/blob/8785ce164defdb9c915c5c0d754aadc29eb4e064/Screens/Uruchamianie%20kontenera.png)
 
 ### Sprawdzenie logów
 ```bash
 docker logs weather-container
 ```
+![image alt](https://github.com/r1ckshot/WeatherApp/blob/8785ce164defdb9c915c5c0d754aadc29eb4e064/Screens/Sprawdzenie%20log%C3%B3w.png)
 
 ### Sprawdzenie liczby warstw i rozmiaru obrazu
 ```bash
 docker image inspect weather-app:go --format='{{.RootFS.Layers}}' | wc -w
 docker image ls weather-app:go
 ```
+![image alt](https://github.com/r1ckshot/WeatherApp/blob/8785ce164defdb9c915c5c0d754aadc29eb4e064/Screens/Sprawdzenie%20liczby%20warstw%20i%20rozmiaru%20obrazu.png)
 
 ### Sprawdzenie statusu healthcheck
 ```bash
 docker inspect weather-container | grep -A 10 "Health"
 ```
+![image alt](https://github.com/r1ckshot/WeatherApp/blob/8785ce164defdb9c915c5c0d754aadc29eb4e064/Screens/Sprawdzenie%20statusu%20healthcheck.png)
 
 ## Dostęp do aplikacji
 Po uruchomieniu kontenera aplikacja będzie dostępna pod adresem: http://localhost:5000
