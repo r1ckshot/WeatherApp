@@ -1,12 +1,9 @@
 # Zadanie 1: Aplikacja Pogodowa w kontenerze Docker
 
-## Autor
-Mykhailo Kapustianyk
-
 ![image alt](https://github.com/r1ckshot/WeatherApp/blob/3ae0c038be9983b3bd4b19c3b24619f2b179976b/Poprawno%C5%9B%C4%87%20dzia%C5%82ania.png)
 
-## Opis projektu
-Projekt zawiera aplikację pogodową napisaną w Go, która umożliwia sprawdzanie aktualnej pogody dla różnych miast w wybranych krajach. Aplikacja korzysta z API OpenWeatherMap do pobierania danych pogodowych.
+## Autor
+Mykhailo Kapustianyk
 
 ## Wymagania
 - Klucz API OpenWeatherMap (można uzyskać za darmo na stronie [OpenWeatherMap](https://openweathermap.org/api))
@@ -17,7 +14,7 @@ Projekt zawiera aplikację pogodową napisaną w Go, która umożliwia sprawdzan
 - HTML/CSS/JavaScript (frontend)
 - Docker (konteneryzacja)
 
-## Struktura projektu
+## Struktura aplikacji
 - `main.go` - kod źródłowy aplikacji
 - `index.html` - plik HTML z interfejsem użytkownika
 - `Dockerfile` - konfiguracja budowania obrazu Docker
